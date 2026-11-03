@@ -1,5 +1,5 @@
 import { Pencil, Trash2 } from "lucide-react";
-import { formatPrice } from "../../utils/format";
+import { formatPrice, formatPercent } from "../../utils/format";
 import "./ProductGridCard.css";
 
 export default function ProductGridCard({ product, onEdit, onDelete }) {
@@ -7,7 +7,7 @@ export default function ProductGridCard({ product, onEdit, onDelete }) {
     <div className="product-grid-card">
       <div className="product-grid-card__image-wrap">
         <img src={product.image} alt={product.title} />
-        {product.discount > 0 && <span className="product-grid-card__badge">-{product.discount}%</span>}
+        {product.discount > 0 && <span className="product-grid-card__badge">-{formatPercent(product.discount)}</span>}
       </div>
       <div className="product-grid-card__body">
         <h3>{product.title}</h3>

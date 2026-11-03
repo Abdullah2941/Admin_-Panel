@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Menu, Search, Bell, ChevronDown } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import "./Topbar.css";
 
 export default function Topbar({ onMenuClick }) {
+  const { user, logout } = useAuth();
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -36,15 +38,15 @@ export default function Topbar({ onMenuClick }) {
         </button>
         <div className="topbar__profile" ref={menuRef}>
           <button className="topbar__profile-btn" onClick={() => setMenuOpen((v) => !v)} aria-expanded={menuOpen}>
-            <span className="topbar__avatar">A</span>
-            <span className="topbar__profile-name">Admin</span>
+            <span className="topbar__avatar">{(user?.name || "A")[0].toUpperCase()}</span>
+            <span className="topbar__profile-name">{user?.name || "Admin"}</span>
             <ChevronDown size={15} className={menuOpen ? "rotate" : ""} />
           </button>
           {menuOpen && (
             <div className="topbar__menu">
               <button>My Profile</button>
               <button>Store Settings</button>
-              <button>Sign Out</button>
+              <button onClick={logout}>Sign Out</button>
             </div>
           )}
         </div>

@@ -54,3 +54,8 @@ npm run preview
   exports a CSV client-side and all data lives in `localStorage`.
 - The product catalog mirrors the SHOP.CO storefront's 13 products —
   the same placeholder SVG art is reused here for consistency.
+
+## Backend (API) connection
+- Backend ka live link `.env` ya Vercel Environment Variable me daalo: `VITE_API_URL=https://<your-backend>/api` (`.env.example` dekho)
+- Admin login: `/api/auth/admin-login` (seed wala admin user: ADMIN_EMAIL / ADMIN_PASSWORD)
+- Dashboard, Customers, Orders, Product Sales aur Products sab API se aate hain

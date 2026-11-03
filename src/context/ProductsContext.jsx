@@ -1,48 +1,50 @@
-import { createContext, useEffect, useReducer } from "react";
-import { INITIAL_PRODUCTS, PLACEHOLDER_IMAGE } from "../data/products";
-import { genId } from "../utils/format";
+import { createContext, useCallback, useEffect, useState } from "react";
+import { api, fromApiProduct, toApiProduct } from "../api/client";
+import { useAuth } from "./AuthContext";
 
 export const ProductsContext = createContext(null);
-const STORAGE_KEY = "shopco-admin-products-v1";
-
-function loadInitial() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : INITIAL_PRODUCTS;
-  } catch {
-    return INITIAL_PRODUCTS;
-  }
-}
-
-function reducer(state, action) {
-  switch (action.type) {
-    case "ADD":
-      return [{ ...action.payload, id: action.payload.id || genId(), unitsSold: 0, rating: 0 }, ...state];
-    case "UPDATE":
-      return state.map((p) => (p.id === action.payload.id ? { ...p, ...action.payload } : p));
-    case "DELETE":
-      return state.filter((p) => p.id !== action.payload);
-    default:
-      return state;
-  }
-}
 
 export function ProductsProvider({ children }) {
-  const [products, dispatch] = useReducer(reducer, undefined, loadInitial);
+  const { isAuthed } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const d = await api("/products?limit=500", { auth: false });
+      setProducts(d.products.map(fromApiProduct));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-    } catch { /* storage unavailable, edits just won't persist */ }
-  }, [products]);
+    if (isAuthed) load();
+    else setProducts([]);
+  }, [isAuthed, load]);
 
-  const addProduct = (data) => dispatch({ type: "ADD", payload: { image: PLACEHOLDER_IMAGE, ...data } });
-  const updateProduct = (id, data) => dispatch({ type: "UPDATE", payload: { id, ...data } });
-  const deleteProduct = (id) => dispatch({ type: "DELETE", payload: id });
+  // add / update / delete all throw on failure so the page can show the message
+  const addProduct = async (data) => {
+    const d = await api("/products", { method: "POST", body: toApiProduct(data) });
+    setProducts((prev) => [fromApiProduct(d.product), ...prev]);
+  };
+  const updateProduct = async (id, data) => {
+    const d = await api(`/products/${id}`, { method: "PUT", body: toApiProduct(data) });
+    setProducts((prev) => prev.map((p) => (p.id === id ? fromApiProduct(d.product) : p)));
+  };
+  const deleteProduct = async (id) => {
+    await api(`/products/${id}`, { method: "DELETE" });
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
   const getProductById = (id) => products.find((p) => p.id === id);
 
   return (
-    <ProductsContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, getProductById }}>
+    <ProductsContext.Provider value={{ products, loading, error, reload: load, addProduct, updateProduct, deleteProduct, getProductById }}>
       {children}
     </ProductsContext.Provider>
   );

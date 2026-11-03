@@ -17,3 +17,5 @@
 .popular-stocks__row-change--down { background: var(--danger-bg); color: var(--danger); }
 .popular-stocks__view-all { margin-top: 14px; font-size: 13px; font-weight: 600; color: var(--blue); width: 100%; text-align: center; padding: 8px; transition: opacity 0.15s ease; }
 .popular-stocks__view-all:hover { opacity: 0.75; }
+
+a.popular-stocks__view-all { display: block; text-decoration: none; }

@@ -10,3 +10,6 @@
 .product-form__row .product-form__field { min-width: 0; }
 .product-form__optional { color: var(--text-faint); font-weight: 400; }
 .product-form__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+
+.product-form__field textarea { background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 14px; color: var(--text); font-family: inherit; resize: vertical; outline: none; }
+.product-form__field textarea:focus { border-color: var(--purple); }
